@@ -1,0 +1,66 @@
+# === Java ===
+*.class
+*.jar
+*.war
+*.ear
+
+# === Maven ===
+target/
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+flattened-pom.xml
+
+# === Gradle (혹시 일부 프로젝트에서 사용 중일 경우 대비) ===
+.gradle/
+build/
+build.log
+
+# === Logs ===
+*.log
+logs/
+
+# === IDEs ===
+.idea/
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings/
+.sts4-cache
+.factorypath
+.recommenders/
+.springBeans/
+
+# === OS ===
+.DS_Store
+Thumbs.db
+*~
+
+# === Node.js (프론트엔드 대비) ===
+node_modules/
+dist/
+build/
+
+# === Secrets & Env ===
+*.pem
+.env
+secrets.yml
+
+# === Others ===
+bin/
+lib/
+MANIFEST.MF
+_site/
+overridedb.*
+dump.rdb
+interpolated*.xml
+code/
+
+.vscode/
