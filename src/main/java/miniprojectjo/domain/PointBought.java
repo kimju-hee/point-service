@@ -14,9 +14,13 @@ public class PointBought extends AbstractEvent {
     private Long id;
     private Integer point;
     private UserId userId;
+    private Integer amount;        // 구매 포인트 수량 추가
 
     public PointBought(Point aggregate) {
         super(aggregate);
+        this.id = aggregate.getId();
+        this.point = aggregate.getPoint();
+        this.userId = aggregate.getUserId();
     }
 
     public PointBought() {

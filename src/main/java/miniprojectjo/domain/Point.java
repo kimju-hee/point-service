@@ -24,7 +24,8 @@ public class Point {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private Integer point;
+    // 현재 보유 포인트 (초기 0)
+    private Integer point = 0;
 
     private Boolean isSubscribe;
 
@@ -34,79 +35,101 @@ public class Point {
     @Embedded
     private SubscriptionId subscriptionId;
 
-    public static PointRepository repository() {
-        PointRepository pointRepository = PointApplication.applicationContext.getBean(
-            PointRepository.class
-        );
-        return pointRepository;
+    // 포인트 충전
+    public void chargePoint(int amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("충전할 포인트는 0보다 커야 합니다.");
+        }
+        if (this.point == null) {
+            this.point = 0;
+        }
+        this.point += amount;
     }
 
-    //<<< Clean Arch / Port Method
-    public static void gainRegisterPoint(UserRegistered userRegistered) {
-        //implement business logic here:
+    public static PointRepository repository() {
+        return PointApplication.applicationContext.getBean(PointRepository.class);
+    }
 
-        /** Example 1:  new item 
+    // 회원 가입 시 포인트 지급 (미구현 템플릿)
+    public static void gainRegisterPoint(UserRegistered userRegistered) {
+        // TODO: 구현
+
+        // 1) 새 포인트 객체 생성
         Point point = new Point();
+
+        // 2) 사용자 ID 세팅 (UserRegistered 이벤트의 필드 이름에 맞춰 수정)
+        point.setUserId(new UserId(String.valueOf(userRegistered.getId())));
+
+        // 3) 초기 포인트 지급 (예: 1000 포인트)
+        point.setPoint(1000);
+
+        // 4) 구독 상태 초기화 (예: false)
+        point.setIsSubscribe(false);
+
+        // 5) 저장
         repository().save(point);
 
+        // 6) PointRegistered 이벤트 발행
         PointRegistered pointRegistered = new PointRegistered(point);
         pointRegistered.publishAfterCommit();
-        */
-
-        /** Example 2:  finding and process
-        
-
-        repository().findById(userRegistered.get???()).ifPresent(point->{
-            
-            point // do something
-            repository().save(point);
-
-            PointRegistered pointRegistered = new PointRegistered(point);
-            pointRegistered.publishAfterCommit();
-
-         });
-        */
-
     }
 
-    //>>> Clean Arch / Port Method
-    //<<< Clean Arch / Port Method
+    // 구독료 결제 시 포인트 차감
     public static void decreasePoint(SubscriptionApplied subscriptionApplied) {
-        //implement business logic here:
 
-        /** Example 1:  new item 
-        Point point = new Point();
-        repository().save(point);
+        // 1) 이벤트에서 정보 꺼내기
+        String userIdValue     = subscriptionApplied.getUserId();  // 이름 맞춰 주세요
+        int    subscriptionCost = subscriptionApplied.getCost();   // 이름 맞춰 주세요
 
-        PointDecreased pointDecreased = new PointDecreased(point);
-        pointDecreased.publishAfterCommit();
-        OutOfPoint outOfPoint = new OutOfPoint(point);
-        outOfPoint.publishAfterCommit();
-        */
+        // 2) 포인트 레코드 조회
+        repository().findByUserId(new UserId(userIdValue))
+            .ifPresentOrElse(point -> {
 
-        /** Example 2:  finding and process
-        
-        // if subscriptionApplied.bookIduserId exists, use it
-        
-        // ObjectMapper mapper = new ObjectMapper();
-        // Map<Long, Object> subscriptionMap = mapper.convertValue(subscriptionApplied.getBookId(), Map.class);
-        // Map<Long, Object> subscriptionMap = mapper.convertValue(subscriptionApplied.getUserId(), Map.class);
+                // 3‑1) 포인트 부족
+                if (point.getPoint() < subscriptionCost) {
+                    OutOfPoint outOfPoint = new OutOfPoint(point);
+                    outOfPoint.publishAfterCommit();
+                    return;
+                }
 
-        repository().findById(subscriptionApplied.get???()).ifPresent(point->{
-            
-            point // do something
+                // 3‑2) 차감 후 저장
+                point.setPoint(point.getPoint() - subscriptionCost);
+                repository().save(point);
+
+                // 4) 차감 이벤트 발행
+                PointDecreased pointDecreased = new PointDecreased(point);
+                pointDecreased.publishAfterCommit();
+
+            }, () -> {
+                // 포인트 레코드가 없을 때
+                OutOfPoint outOfPoint = new OutOfPoint(
+                    new Point() {{
+                        setUserId(new UserId(userIdValue));
+                        setPoint(0);
+                    }}
+                );
+                outOfPoint.publishAfterCommit();
+            });
+    }
+
+    // 상품·서비스 구매 시 포인트 차감
+    public static void purchasePoint(PointBought pointBought) {
+
+        repository().findByUserId(pointBought.getUserId()).ifPresent(point -> {
+
+            if (point.getPoint() < pointBought.getAmount()) {
+                OutOfPoint outOfPoint = new OutOfPoint(point);
+                outOfPoint.publishAfterCommit();
+                return;
+            }
+
+            point.setPoint(point.getPoint() - pointBought.getAmount());
             repository().save(point);
 
-            PointDecreased pointDecreased = new PointDecreased(point);
-            pointDecreased.publishAfterCommit();
-            OutOfPoint outOfPoint = new OutOfPoint(point);
-            outOfPoint.publishAfterCommit();
-
-         });
-        */
-
+            pointBought.setId(point.getId());
+            pointBought.setPoint(point.getPoint());
+            pointBought.publishAfterCommit();
+        });
     }
-    //>>> Clean Arch / Port Method
-
 }
 //>>> DDD / Aggregate Root

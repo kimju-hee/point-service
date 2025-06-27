@@ -12,13 +12,21 @@ import miniprojectjo.infra.AbstractEvent;
 public class PointRegistered extends AbstractEvent {
 
     private Long id;
-    private String 구독자정보;
-    private String 포인트;
-    private String 구독권여부;
+    // private String 구독자정보;
+    // private String 포인트;
+    // private String 구독권여부;
+    private String subscriberInfo;
+    private int pointAmount;
+    private boolean hasSubscription;
 
     public PointRegistered(Point aggregate) {
-        super(aggregate);
+    super(aggregate);
+    this.id = aggregate.getId();
+    this.subscriberInfo = aggregate.getUserId().getValue();  // userId에서 문자열 값 가져오기
+    this.pointAmount = aggregate.getPoint();
+    this.hasSubscription = aggregate.getIsSubscribe();
     }
+
 
     public PointRegistered() {
         super();
