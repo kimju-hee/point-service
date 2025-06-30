@@ -78,11 +78,11 @@ public class Point {
     public static void decreasePoint(SubscriptionApplied subscriptionApplied) {
 
         // 1) 이벤트에서 정보 꺼내기
-        String userIdValue     = subscriptionApplied.getUserId();  // 이름 맞춰 주세요
-        int    subscriptionCost = subscriptionApplied.getCost();   // 이름 맞춰 주세요
+        UserId userIdValue     = subscriptionApplied.getUserId(); 
+        int    subscriptionCost = subscriptionApplied.getCost();
 
         // 2) 포인트 레코드 조회
-        repository().findByUserId(new UserId(userIdValue))
+        repository().findByUserId(userIdValue)
             .ifPresentOrElse(point -> {
 
                 // 3‑1) 포인트 부족
@@ -104,7 +104,7 @@ public class Point {
                 // 포인트 레코드가 없을 때
                 OutOfPoint outOfPoint = new OutOfPoint(
                     new Point() {{
-                        setUserId(new UserId(userIdValue));
+                        setUserId(userIdValue);
                         setPoint(0);
                     }}
                 );
@@ -115,15 +115,17 @@ public class Point {
     // 상품·서비스 구매 시 포인트 차감
     public static void purchasePoint(PointBought pointBought) {
 
-        repository().findByUserId(pointBought.getUserId()).ifPresent(point -> {
+        // [수정] String → UserId 객체로 감싸기
+        UserId userId = pointBought.getUserId(); // ✅ 
+        repository().findByUserId(userId).ifPresent(point -> {
 
-            if (point.getPoint() < pointBought.getAmount()) {
+            if (point.getPoint() < pointBought.getPoint()) {
                 OutOfPoint outOfPoint = new OutOfPoint(point);
                 outOfPoint.publishAfterCommit();
                 return;
             }
 
-            point.setPoint(point.getPoint() - pointBought.getAmount());
+            point.setPoint(point.getPoint() - pointBought.getPoint());
             repository().save(point);
 
             pointBought.setId(point.getId());

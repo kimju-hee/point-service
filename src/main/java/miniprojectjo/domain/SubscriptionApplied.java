@@ -10,10 +10,12 @@ import miniprojectjo.infra.AbstractEvent;
 public class SubscriptionApplied extends AbstractEvent {
 
     private Long id;
-    private Object bookId;
-    private Object userId;
+    private String bookId; // Object → String
+    private UserId userId; // Object → UserId
     private Boolean isSubscription;
     private Date startSubscription;
     private Date endSubscription;
     private String pdfPath;
+
+    private Integer cost; // 새로 추가
 }

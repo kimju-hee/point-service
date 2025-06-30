@@ -80,7 +80,7 @@ public class PolicyHandler {
     public void wheneverPointRegistered_ChargePoint(@Payload PointRegistered pointRegistered) {
         System.out.println("\n\n##### listener ChargePoint : " + pointRegistered + "\n\n");
 
-        pointRepository.findByUserId(pointRegistered.getSubscriberInfo())  // 필드명 맞게 수정 필요
+        pointRepository.findByUserId(new UserId(pointRegistered.getSubscriberInfo()))  // 필드명 맞게 수정 필요
             .ifPresentOrElse(point -> {
                 // 포인트 충전
                 point.chargePoint(pointRegistered.getPointAmount());
@@ -88,10 +88,11 @@ public class PolicyHandler {
             }, () -> {
                 // 없으면 신규 생성 (필요시)
                 Point newPoint = new Point();
-                newPoint.setUserId(new UserId(pointRegistered.getSubscriberInfo()));  // UserId 임베디드 객체 생성법 맞게 조정
+                newPoint.setUserId(new UserId(pointRegistered.getSubscriberInfo()));
                 newPoint.setPoint(pointRegistered.getPointAmount());
                 newPoint.setIsSubscribe(pointRegistered.isHasSubscription());
                 pointRepository.save(newPoint);
+
             });
     }
 
