@@ -12,14 +12,14 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 //<<< PoEAA / Repository
 @RepositoryRestResource(collectionResourceRel = "points", path = "points")
 public interface PointRepository
-    extends PagingAndSortingRepository<Point, Long> {
+    extends PagingAndSortingRepository<Point, String> {
     @Query(
         value = "select point " +
         "from Point point " +
         "where(:id is null or point.id = :id) and (:point is null or point.point = :point) and (point.isSubscribe = :isSubscribe) and (:userId is null or point.userId = :userId) and (:subscriptionId is null or point.subscriptionId = :subscriptionId)"
     )
     Point getPoint(
-        Long id,
+        String id,
         Integer point,
         Boolean isSubscribe,
         UserId userId,

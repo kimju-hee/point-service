@@ -9,7 +9,7 @@ import miniprojectjo.infra.AbstractEvent;
 @ToString
 public class UserRegistered extends AbstractEvent {
 
-    private Long id;
+    private String id;
     private String email;
     private String userName;
 }

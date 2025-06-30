@@ -21,8 +21,7 @@ import miniprojectjo.domain.PointRegistered;
 public class Point {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private String id;
 
     // 현재 보유 포인트 (초기 0)
     private Integer point = 0;
@@ -50,29 +49,32 @@ public class Point {
         return PointApplication.applicationContext.getBean(PointRepository.class);
     }
 
-    // 회원 가입 시 포인트 지급 (미구현 템플릿)
-    public static void gainRegisterPoint(UserRegistered userRegistered) {
-        // TODO: 구현
+    // // 회원 가입 시 포인트 지급 (미구현 템플릿)
+    // public static void gainRegisterPoint(UserRegistered userRegistered) {
+    //     // TODO: 구현
+    //     System.out.println("##### KAFKA MESSAGE RECEIVED, UserRegistered : " + userRegistered.getId() + " #####");
+    //     // 1) 새 포인트 객체 생성
+    //     Point point = new Point();
 
-        // 1) 새 포인트 객체 생성
-        Point point = new Point();
+    //     // 추가
+    //     point.setId(String.valueOf(userRegistered.getId()));
+    
+    //     // 2) 사용자 ID 세팅 (UserRegistered 이벤트의 필드 이름에 맞춰 수정)
+    //     point.setUserId(new UserId(String.valueOf(userRegistered.getId())));
 
-        // 2) 사용자 ID 세팅 (UserRegistered 이벤트의 필드 이름에 맞춰 수정)
-        point.setUserId(new UserId(String.valueOf(userRegistered.getId())));
+    //     // 3) 초기 포인트 지급 (예: 1000 포인트)
+    //     point.setPoint(1000);
 
-        // 3) 초기 포인트 지급 (예: 1000 포인트)
-        point.setPoint(1000);
+    //     // 4) 구독 상태 초기화 (예: false)
+    //     point.setIsSubscribe(false);
 
-        // 4) 구독 상태 초기화 (예: false)
-        point.setIsSubscribe(false);
+    //     // 5) 저장
+    //     repository().save(point);
 
-        // 5) 저장
-        repository().save(point);
-
-        // 6) PointRegistered 이벤트 발행
-        PointRegistered pointRegistered = new PointRegistered(point);
-        pointRegistered.publishAfterCommit();
-    }
+    //     // 6) PointRegistered 이벤트 발행
+    //     PointRegistered pointRegistered = new PointRegistered(point);
+    //     pointRegistered.publishAfterCommit();
+    // }
 
     // 구독료 결제 시 포인트 차감
     public static void decreasePoint(SubscriptionApplied subscriptionApplied) {

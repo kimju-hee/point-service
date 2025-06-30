@@ -11,7 +11,7 @@ import miniprojectjo.infra.AbstractEvent;
 @ToString
 public class PointRegistered extends AbstractEvent {
 
-    private Long id;
+    private String id;
     // private String 구독자정보;
     // private String 포인트;
     // private String 구독권여부;

@@ -11,7 +11,7 @@ import miniprojectjo.infra.AbstractEvent;
 @ToString
 public class PointDecreased extends AbstractEvent {
 
-    private Long id;
+    private String id;
     private Integer point;
     private UserId userId;
 
