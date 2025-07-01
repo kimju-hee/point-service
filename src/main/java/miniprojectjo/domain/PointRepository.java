@@ -20,7 +20,7 @@ public interface PointRepository
     )
     Point getPoint(
         String id,
-        Integer point,
+        int point,
         Boolean isSubscribe,
         UserId userId,
         SubscriptionId subscriptionId

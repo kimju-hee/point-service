@@ -12,7 +12,7 @@ import miniprojectjo.infra.AbstractEvent;
 public class PointBought extends AbstractEvent {
 
     private String id;
-    private Integer point;
+    private int point;
     private UserId userId;
     private Integer amount;        // 구매 포인트 수량 추가
 

@@ -12,7 +12,7 @@ import miniprojectjo.infra.AbstractEvent;
 public class PointDecreased extends AbstractEvent {
 
     private String id;
-    private Integer point;
+    private int point;
     private UserId userId;
 
     public PointDecreased(Point aggregate) {

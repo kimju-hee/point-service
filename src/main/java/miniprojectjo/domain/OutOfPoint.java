@@ -12,7 +12,7 @@ import miniprojectjo.infra.AbstractEvent;
 public class OutOfPoint extends AbstractEvent {
 
     private Long id;
-    private Integer point;
+    private int point;
     private UserId userId;
     private SubscriptionId subscriptionId;
 

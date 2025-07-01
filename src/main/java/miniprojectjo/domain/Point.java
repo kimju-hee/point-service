@@ -24,7 +24,7 @@ public class Point {
     private String id;
 
     // 현재 보유 포인트 (초기 0)
-    private Integer point = 0;
+    private int point = 0;
 
     private Boolean isSubscribe;
 
@@ -33,15 +33,17 @@ public class Point {
 
     @Embedded
     private SubscriptionId subscriptionId;
+    // 기본 생성자를 명시적으로 추가
+    public Point() {
+        this.point = 0; // 새로 생성될 때 항상 0으로 초기화
+    }
 
     // 포인트 충전
     public void chargePoint(int amount) {
         if (amount <= 0) {
             throw new IllegalArgumentException("충전할 포인트는 0보다 커야 합니다.");
         }
-        if (this.point == null) {
-            this.point = 0;
-        }
+        
         this.point += amount;
     }
 

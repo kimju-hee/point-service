@@ -39,15 +39,15 @@ public class PolicyHandler {
         // Sample Logic //
         //Point.gainRegisterPoint(event);
 
-        Point point = new Point();
-        point.setId(String.valueOf(userRegistered.getId()));
-        point.setUserId(new UserId(String.valueOf(userRegistered.getId())));
-        point.setPoint(1000); // 1000 포인트 지급
-        point.setIsSubscribe(false);
-        pointRepository.save(point);
+        // Point point = new Point();
+        // point.setId(String.valueOf(userRegistered.getId()));
+        // point.setUserId(new UserId(String.valueOf(userRegistered.getId())));
+        // point.setPoint(1000); // 1000 포인트 지급
+        // point.setIsSubscribe(false);
+        // pointRepository.save(point);
 
-        PointRegistered pointRegistered = new PointRegistered(point);
-        pointRegistered.publishAfterCommit();
+        // PointRegistered pointRegistered = new PointRegistered(point);
+        // pointRegistered.publishAfterCommit();
     }
 
     @StreamListener(
