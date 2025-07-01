@@ -44,7 +44,8 @@ logging:
   level:
     org.hibernate.type: trace
     org.springframework.cloud: debug
-    org.springframework.web: INFO # Spring 웹 관련 로그를 INFO 레벨로 설정
+    org.springframework.web: INFO 
+    miniprojectjo: INFO
 
 
 server:
