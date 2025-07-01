@@ -1,10 +1,10 @@
 package miniprojectjo.infra;
 
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest; // 현재 사용되지 않으므로 제거 가능하지만 일단 유지
-import javax.servlet.http.HttpServletResponse; // 현재 사용되지 않으므로 제거 가능하지만 일단 유지
+// import javax.servlet.http.HttpServletRequest; // 사용되지 않으므로 제거
+// import javax.servlet.http.HttpServletResponse; // 사용되지 않으므로 제거
 import javax.transaction.Transactional;
-import miniprojectjo.domain.*; // Point, UserId, SubscriptionId, PointRepository 등
+import miniprojectjo.domain.*; // Point, UserId, SubscriptionId, PointRepository 등 필요한 도메인 클래스 import
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +39,7 @@ public class PointController {
     }
 
 
-    // 2. 테스트 이벤트 발행 (POST) - 기존 코드 유지
+    // 2. 테스트 이벤트 발행 (POST)
     // 예: POST http://localhost:8084/points/publish-test-event
     @PostMapping("/publish-test-event")
     public String publishTestEvent(@RequestBody TestEventRequest request) {
@@ -55,7 +55,7 @@ public class PointController {
 
             return "Event published for user: " + request.getId();
         } catch (Exception e) {
-            logger.error("테스트 이벤트 발행 중 오류 발생: {}", e.getMessage(), e); // e도 함께 로깅하여 스택 트레이스 출력
+            logger.error("테스트 이벤트 발행 중 오류 발생: {}", e.getMessage(), e);
             return "Failed to publish event: " + e.getMessage();
         }
     }
@@ -68,7 +68,7 @@ public class PointController {
     }
 
 
-    // --- 새로 추가되는 핵심 기능 API 엔드포인트 ---
+    // --- 핵심 기능 API 엔드포인트 ---
 
     // 3. 가입포인트 획득 (POST)
     // 예: POST http://localhost:8084/points/gain-signup
@@ -76,35 +76,29 @@ public class PointController {
     public ResponseEntity<String> gainSignupPoint(@RequestBody SignupPointRequest request) {
         logger.info("가입포인트 획득 요청 수신: userId={}, amount={}", request.getUserId(), request.getAmount());
         try {
-            Optional<Point> optionalPoint = pointRepository.findByUserId(new UserId(request.getUserId()));
-            Point point;
-            if (optionalPoint.isPresent()) {
-                point = optionalPoint.get();
-                logger.info("기존 포인트 엔티티 찾음 (가입포인트): ID={}, 현재포인트={}", point.getId(), point.getPoint());
-                point.chargePoint(request.getAmount()); // 기존 포인트에 합산
-                logger.info("가입포인트 합산 후 (기존): ID={}, 업데이트포인트={}", point.getId(), point.getPoint());
-            } else {
-                point = new Point();
-                point.setId(java.util.UUID.randomUUID().toString()); // 새로운 Point 엔티티 ID 생성
-                point.setUserId(new UserId(request.getUserId()));
-                point.setPoint(request.getAmount()); // 초기 가입 포인트 설정
-                point.setIsSubscribe(false); // 초기 구독 상태
-                logger.info("새로운 포인트 엔티티 생성 (가입포인트): ID={}, 초기포인트={}", point.getId(), point.getPoint());
-            }
-            pointRepository.save(point);
-            logger.info("가입포인트 엔티티 저장 완료: ID={}, 최종포인트={}", point.getId(), point.getPoint());
+            // 실제 포인트 저장 로직 제거
+            // Optional<Point> optionalPoint = pointRepository.findByUserId(new UserId(request.getUserId()));
+            // Point point;
+            // if (optionalPoint.isPresent()) { ... } else { ... }
+            // pointRepository.save(point); // <-- 이 라인 제거!
 
-            // PointRegistered 이벤트 발행 (옵션)
-            PointRegistered pointRegistered = new PointRegistered(point);
+            // PointRegistered 이벤트 발행만 담당
+            PointRegistered pointRegistered = new PointRegistered(); // 이벤트를 새로 생성
+            pointRegistered.setId(java.util.UUID.randomUUID().toString()); // 이벤트 ID (트랜잭션 ID)
+            pointRegistered.setSubscriberInfo(request.getUserId()); // 사용자 정보
+            pointRegistered.setPointAmount(request.getAmount()); // 지급할 포인트 금액
+            pointRegistered.setHasSubscription(false); // 초기 구독 상태
+            pointRegistered.setEventType("PointRegistered"); // 이벤트 타입 명시
+
             pointRegistered.publishAfterCommit();
-            logger.info("PointRegistered 이벤트 발행 완료: ID={}", point.getId());
+            logger.info("PointRegistered 이벤트 발행 완료: userId={}", request.getUserId());
 
-            return new ResponseEntity<>("Signup points gained for user: " + request.getUserId(), HttpStatus.OK);
+            return new ResponseEntity<>("Signup point request received for user: " + request.getUserId() + ". Processing via event.", HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             logger.error("가입포인트 요청 처리 중 유효성 오류: {}", e.getMessage(), e);
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            logger.error("가입포인트 요청 처리 중 알 수 없는 오류 발생: {}", e.getMessage(), e); // e도 함께 로깅하여 스택 트레이스 출력
+            logger.error("가입포인트 요청 처리 중 알 수 없는 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>("Failed to gain signup points: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -123,6 +117,7 @@ public class PointController {
     // 4. 포인트 구매/충전 (POST)
     // Point.java의 chargePoint 메서드와 연계됩니다.
     // 예: POST http://localhost:8084/points/charge
+
     @PostMapping("/charge")
     public ResponseEntity<String> chargePoint(@RequestBody PointChargeRequest request) {
         logger.info("포인트 충전/구매 요청 수신: userId={}, amount={}", request.getUserId(), request.getAmount());
@@ -131,22 +126,23 @@ public class PointController {
             if (optionalPoint.isPresent()) {
                 Point point = optionalPoint.get();
                 logger.info("기존 포인트 엔티티 찾음 (충전/구매): ID={}, 현재포인트={}", point.getId(), point.getPoint());
-                point.chargePoint(request.getAmount()); // Point 엔티티의 chargePoint 메서드 사용
-                logger.info("포인트 충전 후 (기존): ID={}, 업데이트포인트={}", point.getId(), point.getPoint());
-                pointRepository.save(point);
-                logger.info("포인트 엔티티 저장 완료 (충전/구매): ID={}, 최종포인트={}", point.getId(), point.getPoint());
+                //point.chargePoint(request.getAmount()); // Point 엔티티의 chargePoint 메서드 사용
+                //logger.info("포인트 충전 후 (기존): ID={}, 업데이트포인트={}", point.getId(), point.getPoint());
+                //pointRepository.save(point);
+                //logger.info("포인트 엔티티 저장 완료 (충전/구매): ID={}, 최종포인트={}", point.getId(), point.getPoint());
 
                 // PointBought 이벤트 발행
                 PointBought pointBought = new PointBought();
                 pointBought.setUserId(new UserId(request.getUserId()));
-                pointBought.setPoint(request.getAmount()); // 구매(충전)된 포인트
-                // PointBought 이벤트 발행 직전의 값 로깅 (디버깅 용도)
-                logger.debug("PointBought 이벤트 발행 직전: userId={}, point={}", pointBought.getUserId().getValue(), pointBought.getPoint()); // debug 레벨 로그
+                // PointBought 이벤트의 'point' 필드를 구매/충전 '금액'으로 설정 (PointBought.java 수정 반영)
+                pointBought.setPoint(request.getAmount()); // <--- 이 부분이 수정되었습니다.
+
+                logger.debug("PointBought 이벤트 발행 직전: userId={}, eventPoint={}", pointBought.getUserId().getValue(), pointBought.getPoint());
 
                 pointBought.publishAfterCommit();
                 logger.info("PointBought 이벤트 발행 완료: userId={}", request.getUserId());
 
-                return new ResponseEntity<>("Points charged for user: " + request.getUserId(), HttpStatus.OK);
+                return new ResponseEntity<>("Points charge request received for user: " + request.getUserId() + ". Processing via event.", HttpStatus.OK);
             } else {
                 logger.warn("충전/구매 요청 실패: 사용자 {}를 찾을 수 없거나 포인트 레코드가 없음", request.getUserId());
                 return new ResponseEntity<>("User not found or no existing point record for user: " + request.getUserId(), HttpStatus.NOT_FOUND);
@@ -155,10 +151,12 @@ public class PointController {
             logger.error("포인트 충전/구매 요청 처리 중 유효성 오류: {}", e.getMessage(), e);
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            logger.error("포인트 충전/구매 요청 처리 중 알 수 없는 오류 발생: {}", e.getMessage(), e); // e도 함께 로깅하여 스택 트레이스 출력
+            logger.error("포인트 충전/구매 요청 처리 중 알 수 없는 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>("Failed to charge points: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
 
     // PointChargeRequest 클래스 정의
     static class PointChargeRequest {
@@ -203,7 +201,7 @@ public class PointController {
                 return new ResponseEntity<>("User not found or no existing point record for user: " + request.getUserId(), HttpStatus.NOT_FOUND);
             }
         } catch (Exception e) {
-            logger.error("포인트 차감 요청 처리 중 알 수 없는 오류 발생: {}", e.getMessage(), e); // e도 함께 로깅하여 스택 트레이스 출력
+            logger.error("포인트 차감 요청 처리 중 알 수 없는 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>("Failed to deduct points: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
