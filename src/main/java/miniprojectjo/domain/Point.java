@@ -1,6 +1,6 @@
 package miniprojectjo.domain;
 
-// 불필요한 import 제거 (ObjectMapper, LocalDate, Collections, Date, List, Map 등)
+
 import javax.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor; // 유지: Lombok이 no-arg constructor 생성
@@ -15,8 +15,8 @@ import miniprojectjo.domain.PointRegistered;
 @Entity
 @Table(name = "Point_table")
 @Data
-@NoArgsConstructor // Lombok이 기본 생성자를 생성해 줄 것입니다.
-@AllArgsConstructor // 모든 필드를 인자로 받는 생성자를 만들어 줍니다. (필요 시 유지)
+@NoArgsConstructor 
+@AllArgsConstructor 
 //<<< DDD / Aggregate Root
 public class Point {
 
@@ -34,14 +34,6 @@ public class Point {
     @Embedded
     private SubscriptionId subscriptionId;
 
-    // --- !!! 이 부분을 삭제합니다 !!! ---
-    // @NoArgsConstructor가 대신 생성하므로 명시적인 정의는 필요 없습니다.
-    /*
-    public Point() {
-        this.point = 0;
-    }
-    */
-    // --- !!! 삭제 끝 !!! ---
 
 
     // 포인트 충전 (증가)
@@ -101,7 +93,7 @@ public class Point {
             point.setPoint(point.getPoint() + pointBought.getPoint()); // <-- 포인트 증가 로직
             repository().save(point);
 
-            // 무한 루프 원인이었던 이벤트 재발행 로직은 이미 제거됨.
+            // 무한 루프 원인이었던 이벤트 재발행 로직은 제거
         });
     }
 }
