@@ -16,14 +16,19 @@ spec:
     spec:
       containers:
         - name: point
-          image: "project20registry.azurecr.io/point:v4"
+          image: "project20registry.azurecr.io/point:v5"
           ports:
             - containerPort: 8080
+
+          env: # <-- 이 부분을 추가합니다!
+            - name: SERVER_ADDRESS
+              value: "0.0.0.0"
+
           readinessProbe:
             httpGet:
               path: '/actuator/health'
               port: 8080
-            initialDelaySeconds: 10
+            initialDelaySeconds: 60
             timeoutSeconds: 2
             periodSeconds: 5
             failureThreshold: 10
@@ -31,7 +36,7 @@ spec:
             httpGet:
               path: '/actuator/health'
               port: 8080
-            initialDelaySeconds: 120
+            initialDelaySeconds: 180
             timeoutSeconds: 2
             periodSeconds: 5
             failureThreshold: 5
