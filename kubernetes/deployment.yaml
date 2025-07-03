@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: point
-          image: "project20registry.azurecr.io/point:v10"
+          image: "project20registry.azurecr.io/point:v12"
           ports:
             - containerPort: 8080
 
