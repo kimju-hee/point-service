@@ -17,18 +17,20 @@ spec:
     spec:
       containers:
         - name: point
-          image: "project20registry.azurecr.io/point:v5"
+          image: "project20registry.azurecr.io/point:v6"
           ports:
-            - containerPort: 8080
+            - containerPort: 8084
 
-          env: # <-- 이 부분을 추가합니다!
+          env:
             - name: SERVER_ADDRESS
               value: "0.0.0.0"
+            - name: SPRING_PROFILES_ACTIVE
+              value: docker 
 
           readinessProbe:
             httpGet:
               path: '/actuator/health'
-              port: 8080
+              port: 8084
             initialDelaySeconds: 60
             timeoutSeconds: 2
             periodSeconds: 5
@@ -36,7 +38,7 @@ spec:
           livenessProbe:
             httpGet:
               path: '/actuator/health'
-              port: 8080
+              port: 8084
             initialDelaySeconds: 180
             timeoutSeconds: 2
             periodSeconds: 5

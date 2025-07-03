@@ -17,5 +17,5 @@ spec:
   ports:
     - protocol: TCP      # <-- 프로토콜 명시
       port: 80           # <-- 외부 노출 포트를 80으로 변경
-      targetPort: 8080   # <-- Pod 내부 앱 포트 (이건 맞음)
+      targetPort: 8084   # <-- Pod 내부 앱 포트 (이건 맞음)
   type: LoadBalancer     # <-- LoadBalancer 타입 추가
