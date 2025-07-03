@@ -1,5 +1,5 @@
 server:
-  port: 8084
+  port: 8080
 
 spring:
   application:
@@ -49,7 +49,7 @@ logging:
 
 
 server:
-  port: 8084
+  port: 8080
 
 ---
 
@@ -66,7 +66,7 @@ spring:
       kafka:
         binder:
           # brokers: kafka:9092
-          brokers: kafka.default.svc.cluster.local:9092
+          brokers: my-kafka:9092
         streams:
           binder:
             configuration:
@@ -83,5 +83,3 @@ spring:
         event-out:
           destination: miniprojectjo
           contentType: application/json
-
-
