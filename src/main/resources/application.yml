@@ -1,24 +1,25 @@
 server:
-  port: 8080
+  port: 8084
 
 spring:
   application:
     name: point
----
 
-spring:
-  profiles: default
+  profiles:
+    active: default
+
   jpa:
     properties:
       hibernate:
         show_sql: true
         format_sql: true
         implicit_naming_strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl
+
   cloud:
     stream:
       kafka:
         binder:
-          brokers: localhost:9092
+          brokers: kafka.default.svc.cluster.local:9092
         streams:
           binder:
             configuration:
@@ -30,54 +31,28 @@ spring:
       bindings:
         event-in:
           group: point
-#<<< EDA / Topic Name
           destination: miniprojectjo
-#>>> EDA / Topic Name
           contentType: application/json
         event-out:
-#<<< EDA / Topic Name
           destination: miniprojectjo
-#>>> EDA / Topic Name
           contentType: application/json
+
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 logging:
   level:
     org.hibernate.type: trace
     org.springframework.cloud: debug
-    org.springframework.web: INFO 
-    miniprojectjo: INFO
+    org.springframework.core.env: DEBUG
 
-
-
----
-
-spring:
-  profiles: docker
-  jpa:
-    properties:
-      hibernate:
-        show_sql: true
-        format_sql: true
-        implicit_naming_strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl
-  cloud:
-    stream:
-      kafka:
-        binder:
-          # brokers: kafka:9092
-          brokers: kafka:9092
-        streams:
-          binder:
-            configuration:
-              default:
-                key:
-                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
-                value:
-                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
-      bindings:
-        event-in:
-          group: point
-          destination: miniprojectjo
-          contentType: application/json
-        event-out:
-          destination: miniprojectjo
-          contentType: application/json
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
