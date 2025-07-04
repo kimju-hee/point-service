@@ -5,7 +5,7 @@ metadata:
   labels:
     app: point
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: point
@@ -17,9 +17,9 @@ spec:
     spec:
       containers:
         - name: point
-          image: "project20registry.azurecr.io/point:v12"
+          image: "project20registry.azurecr.io/point:v13"
           ports:
-            - containerPort: 8080
+            - containerPort: 8084
 
           env:
             - name: SERVER_ADDRESS
@@ -30,7 +30,7 @@ spec:
           readinessProbe:
             httpGet:
               path: '/actuator/health'
-              port: 8080
+              port: 8084
             initialDelaySeconds: 90
             timeoutSeconds: 2
             periodSeconds: 10
@@ -38,7 +38,7 @@ spec:
           livenessProbe:
             httpGet:
               path: '/actuator/health'
-              port: 8080
+              port: 8084
             initialDelaySeconds: 240
             timeoutSeconds: 2
             periodSeconds: 10
